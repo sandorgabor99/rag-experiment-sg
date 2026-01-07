@@ -257,10 +257,10 @@ class QuestionAnswerer:
             Generated answer string
         """
         if not question or not question.strip():
-            raise ValueError("A kérdés nem lehet üres")
+            raise ValueError("Question cannot be empty")
         
         if not context or not context.strip():
-            logger.warning("Üres kontextus lett megadva. A válasz korlátozott lehet.")
+            logger.warning("Empty context provided. Answer may be limited.")
             context = "Nincs elérhető kontextus."
         
         try:
@@ -268,22 +268,22 @@ class QuestionAnswerer:
             prompt = self._build_prompt(question, context)
             
             # Debug: Log context length
-            logger.debug(f"Kontextus hossza: {len(context)} karakter, {len(context.split())} szó")
-            logger.debug(f"Prompt hossza: {len(prompt)} karakter")
+            logger.debug(f"Context length: {len(context)} characters, {len(context.split())} words")
+            logger.debug(f"Prompt length: {len(prompt)} characters")
             
             # Generate answer using LLM
-            logger.info(f"Válasz generálása a kérdésre: '{question[:50]}...'")
-            logger.info(f"Kontextus használata: {len(context)} karakter")
+            logger.info(f"Generating answer for question: '{question[:50]}...'")
+            logger.info(f"Using context: {len(context)} characters")
             response = self.llm.invoke(prompt)
             
             # Extract answer text
             answer = response.content.strip()
             
-            logger.info(f"Generált válasz: {len(answer)} karakter")
+            logger.info(f"Generated answer: {len(answer)} characters")
             return answer
             
         except Exception as e:
-            logger.error(f"A válasz generálása sikertelen: {e}", exc_info=True)
+            logger.error(f"Failed to generate answer: {e}", exc_info=True)
             raise
     
     def _build_prompt(self, question: str, context: str) -> str:
@@ -299,7 +299,7 @@ class QuestionAnswerer:
         """
         # Ensure context is not empty
         if not context or not context.strip():
-            logger.warning("A kontextus üres, helyőrző használata")
+            logger.warning("Context is empty, using placeholder")
             context = "Nincs elérhető kontextus."
         
         try:
@@ -309,10 +309,10 @@ class QuestionAnswerer:
             )
             # Debug: verify prompt contains context
             if "Nincs elérhető kontextus" in prompt or len(context) < 10:
-                logger.warning(f"A kontextus üresnek vagy nagyon rövidnek tűnik: {len(context)} karakter")
+                logger.warning(f"Context appears empty or very short: {len(context)} characters")
             return prompt
         except KeyError as e:
-            logger.error(f"Prompt sablon formázási hiba: {e}")
+            logger.error(f"Prompt template formatting error: {e}")
             # Fallback to simple format (Hungarian)
             return f"""Te egy segítőkész asszisztens vagy. Válaszolj a kérdésre a megadott kontextus alapján.
 
@@ -337,10 +337,10 @@ Válasz:"""
             Generated answer string
         """
         if not question or not question.strip():
-            raise ValueError("A kérdés nem lehet üres")
+            raise ValueError("Question cannot be empty")
         
         if not context or not context.strip():
-            logger.warning("Üres kontextus lett megadva. A válasz korlátozott lehet.")
+            logger.warning("Empty context provided. Answer may be limited.")
             context = "Nincs elérhető kontextus."
         
         try:
@@ -355,15 +355,15 @@ Válasz:"""
             messages = [system_message, human_message]
             
             # Generate answer
-            logger.info(f"Válasz generálása a kérdésre: '{question[:50]}...'")
+            logger.info(f"Generating answer for question: '{question[:50]}...'")
             response = self.llm.invoke(messages)
             
             answer = response.content.strip()
-            logger.info(f"Generált válasz: {len(answer)} karakter")
+            logger.info(f"Generated answer: {len(answer)} characters")
             return answer
             
         except Exception as e:
-            logger.error(f"A válasz generálása sikertelen: {e}", exc_info=True)
+            logger.error(f"Failed to generate answer: {e}", exc_info=True)
             raise
 
 
