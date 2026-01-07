@@ -206,43 +206,34 @@ OLLAMA_BASE_URL=http://localhost:11434
 ## Features
 
 ### Text Processing
-- ✅ Sentence-aware chunking
-- ✅ Token-based chunking with overlap
-- ✅ Text cleaning and normalization
+- Sentence-aware chunking
+- Token-based chunking with overlap
+- Text cleaning and normalization
 
 ### Embeddings
-- ✅ Multiple embedding models supported
-- ✅ Batch processing
-- ✅ Deterministic embeddings
+- Multiple embedding models supported
+-  Batch processing
+-  Deterministic embeddings
 
 ### Search
-- ✅ Cosine and dot-product similarity
-- ✅ Metadata filtering
-- ✅ Persistent vector store
-- ✅ Top-k retrieval
+-  Cosine and dot-product similarity
+-  Metadata filtering
+-  Persistent vector store
+-  Top-k retrieval
 
 ### LLM Integration
-- ✅ Ollama (local models)
-- ✅ OpenAI API
-- ✅ Anthropic Claude API
-- ✅ Custom OpenAI-compatible APIs
+-  Ollama (local models)
+-  OpenAI API
+-  Anthropic Claude API
+-  Custom OpenAI-compatible APIs
 
 ### Context Building
-- ✅ Token limit enforcement
-- ✅ Redundancy reduction
-- ✅ Flexible ordering strategies
+-  Token limit enforcement
+-  Redundancy reduction
+-  Flexible ordering strategies
 
 ## Development
 
-### Running Tests
-
-```bash
-# Run all tests
-pytest tests/
-
-# Run specific test file
-pytest tests/test_processing.py
-```
 
 ### Code Structure
 
@@ -273,16 +264,3 @@ The codebase follows clean code principles:
 - `tiktoken` - Token counting
 - `langchain` - LLM integration
 - `python-dotenv` - Environment variables
-
-
-## License
-
-[Add your license here]
-
-## Contributing
-
-[Add contribution guidelines here]
-
-## Support
-
-[Add support information here]
