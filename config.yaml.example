@@ -1,0 +1,209 @@
+# Knowledge Layer RAG Pipeline Configuration
+# Copy this file to config.yaml and customize as needed.
+# Settings can be overridden by ENV variables (KL_<SECTION>_<KEY>) or CLI arguments.
+
+# ============================================================================
+# EMBEDDING CONFIGURATION
+# ============================================================================
+# Controls how text chunks are converted to vector embeddings for search.
+
+embedding:
+  # Model name or alias (baseline, best, fast, multilingual-384, multilingual-768)
+  # baseline maps to all-MiniLM-L6-v2 (384d, fast, English-focused)
+  # best maps to intfloat/e5-mistral-7b-instruct (4096d, requires high memory)
+  model: "baseline"
+  
+  # Batch size for embedding generation (higher = faster but more memory)
+  batch_size: 32
+  
+  # Device to run on: "cpu" or "cuda" (for GPU acceleration)
+  device: "cpu"
+  
+  # Whether to normalize embeddings (recommended: true)
+  normalize: true
+
+# ============================================================================
+# CHUNKING CONFIGURATION
+# ============================================================================
+# Controls how documents are split into chunks.
+
+chunking:
+  # Strategy: "simple", "sentence-aware", or "hungarian-aware"
+  # hungarian-aware: Optimized for Hungarian text with entity preservation
+  strategy: "hungarian-aware"
+  
+  # Maximum tokens per chunk
+  chunk_size: 400
+  
+  # Token overlap between adjacent chunks (helps preserve context)
+  overlap: 60
+  
+  # Input directory for raw files
+  input_dir: "data/raw"
+  
+  # Output directory for processed files
+  output_dir: "data/processed"
+
+# ============================================================================
+# SEARCH CONFIGURATION
+# ============================================================================
+# Controls how queries are searched in the vector store.
+
+search:
+  # Default number of results for regular queries
+  top_k_default: 20
+  
+  # Number of results for "all" type queries (e.g., "list all founders")
+  top_k_all_queries: 50
+  
+  # Similarity metric: "cosine" or "dot_product"
+  similarity_metric: "cosine"
+  
+  # Whether to boost chunks containing entity names from queries
+  boost_entity_names: true
+  
+  # Whether to use diverse search (ensures results from multiple sources)
+  diverse_search: true
+  
+  # Maximum results per source (null = auto-calculate)
+  max_per_source: null
+
+# ============================================================================
+# CONTEXT BUDGET CONFIGURATION
+# ============================================================================
+# Controls how search results are assembled into context for the LLM.
+
+context:
+  # Default maximum tokens in context block
+  max_tokens_default: 8000
+  
+  # Maximum tokens for "all" type queries
+  max_tokens_all_queries: 12000
+  
+  # Tiktoken encoding name (cl100k_base for GPT models)
+  encoding: "cl100k_base"
+  
+  # Ordering strategy: "relevance" or "chunk_index"
+  order_by: "relevance"
+  
+  # Whether to remove redundant/similar chunks
+  reduce_redundancy: true
+  
+  # Similarity threshold for deduplication (0-1, lower = more aggressive)
+  similarity_threshold: 0.7
+  
+  # Similarity threshold for person chunks (higher to preserve distinct people)
+  similarity_threshold_person: 0.9
+  
+  # Whether to clean chunk text (remove HTML, normalize whitespace)
+  clean_text: true
+  
+  # Whether to use sliding window for very long contexts
+  use_sliding_window: false
+  
+  # Token overlap between sliding windows
+  window_overlap: 200
+
+# ============================================================================
+# LLM CONFIGURATION
+# ============================================================================
+# Controls LLM providers and settings for QA, refinement, and entity extraction.
+
+llm:
+  # ========================================================================
+  # QA (Question Answering) Settings
+  # ========================================================================
+  qa:
+    # Provider: "ollama", "openai", "anthropic", or "custom"
+    provider: "ollama"
+    
+    # Model name (e.g., "llama3", "gpt-3.5-turbo", "claude-3-sonnet")
+    model: "llama3"
+    
+    # Temperature for answer generation (0-1, lower = more deterministic)
+    temperature: 0.7
+    
+    # Maximum tokens for generated answer
+    max_tokens: 500
+    
+    # Base URL for API (null = use default)
+    # For Ollama: defaults to http://localhost:11434
+    base_url: null
+  
+  # ========================================================================
+  # Refiner Settings
+  # ========================================================================
+  refiner:
+    # Whether refinement is enabled (set to true to enable)
+    enabled: false
+    
+    # Provider: "ollama", "openai", "anthropic", or "custom"
+    provider: "ollama"
+    
+    # Model name
+    model: "llama3"
+    
+    # Temperature for refinement (lower = more deterministic)
+    temperature: 0.3
+    
+    # Whether to merge similar chunks
+    enable_merging: true
+    
+    # Whether to generate titles and summaries
+    enable_metadata: true
+    
+    # Maximum tokens per merged chunk
+    max_chunk_tokens: 600
+    
+    # Maximum merges per iteration
+    max_merges_per_iteration: 5
+  
+  # ========================================================================
+  # Entity Extraction Settings
+  # ========================================================================
+  entity_extraction:
+    # Method: "spacy", "llm", or "hybrid"
+    method: "spacy"
+    
+    # spaCy model name (use "hu_core_news_lg" for Hungarian)
+    model: "hu_core_news_lg"
+    
+    # LLM provider (required if method is "llm" or "hybrid")
+    llm_provider: null
+    
+    # LLM model (required if method is "llm" or "hybrid")
+    llm_model: null
+
+# ============================================================================
+# PATHS CONFIGURATION
+# ============================================================================
+# File paths for input/output files.
+
+paths:
+  input_dir: "data/raw"
+  output_dir: "data/processed"
+  vector_store: "data/processed/vector_store.pkl"
+  chunks_file: "data/processed/chunks.jsonl"
+  refined_file: "data/processed/chunks_refined.jsonl"
+  entities_file: "data/processed/chunks_with_entities.jsonl"
+  embedded_file: "data/processed/embedded.jsonl"
+
+# ============================================================================
+# ENVIRONMENT VARIABLE OVERRIDES
+# ============================================================================
+# You can override any config value using ENV variables with format:
+# KL_<SECTION>_<KEY>
+#
+# Examples:
+#   export KL_EMBEDDING_MODEL="multilingual-384"
+#   export KL_CHUNKING_CHUNK_SIZE="500"
+#   export KL_SEARCH_TOP_K_DEFAULT="15"
+#   export KL_CONTEXT_MAX_TOKENS_DEFAULT="6000"
+#   export KL_LLM_QA_PROVIDER="ollama"
+#   export KL_LLM_QA_MODEL="llama3"
+#   export KL_LLM_QA_TEMPERATURE="0.5"
+#
+# For nested keys (like llm.qa.provider), use:
+#   export KL_LLM_QA_PROVIDER="ollama"
+#   export KL_LLM_REFINER_ENABLED="true"
+#   export KL_LLM_ENTITY_EXTRACTION_METHOD="spacy"

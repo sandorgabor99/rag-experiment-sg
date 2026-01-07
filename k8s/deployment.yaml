@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-pipeline
+  labels:
+    app: rag-pipeline
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rag-pipeline
+  template:
+    metadata:
+      labels:
+        app: rag-pipeline
+    spec:
+      containers:
+      - name: rag-api
+        image: rag-pipeline:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: INDEX_PATH
+          value: "/data/indexes/vector_store_latest.pkl"
+        - name: MODEL_PROVIDER
+          value: "ollama"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: API_PORT
+          value: "8000"
+        - name: METRICS_ENABLED
+          value: "true"
+        volumeMounts:
+        - name: index-storage
+          mountPath: /data/indexes
+          readOnly: true
+        - name: config
+          mountPath: /app/config.yaml
+          subPath: config.yaml
+          readOnly: true
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+      volumes:
+      - name: index-storage
+        persistentVolumeClaim:
+          claimName: rag-index-pvc
+      - name: config
+        configMap:
+          name: rag-config

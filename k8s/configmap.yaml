@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rag-config
+data:
+  config.yaml: |
+    # RAG Pipeline Configuration
+    # This config will be mounted as /app/config.yaml in the container
+    
+    embedding:
+      model: "baseline"
+      batch_size: 32
+    
+    chunking:
+      strategy: "hungarian-aware"
+      chunk_size: 400
+      overlap: 60
+    
+    search:
+      top_k_default: 20
+      top_k_all_queries: 50
+      similarity_metric: "cosine"
+      diverse_search: true
+      boost_entity_names: true
+    
+    context:
+      max_tokens_default: 8000
+      max_tokens_all_queries: 12000
+      order_by: "relevance"
+      reduce_redundancy: true
+      similarity_threshold: 0.7
+    
+    llm:
+      qa:
+        provider: "ollama"
+        model: "llama3"
+        temperature: 0.7
+        max_tokens: 500

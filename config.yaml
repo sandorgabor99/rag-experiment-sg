@@ -1,0 +1,78 @@
+# Knowledge Layer RAG Pipeline Configuration
+# This file contains all configuration settings for the RAG pipeline.
+# Settings can be overridden by ENV variables (KL_<SECTION>_<KEY>) or CLI arguments.
+
+# Embedding Configuration
+embedding:
+  model: "baseline"  # Maps to all-MiniLM-L6-v2, or use: best, fast, multilingual-384, multilingual-768
+  batch_size: 32
+  device: "cpu"  # or "cuda" for GPU acceleration
+  normalize: true
+
+# Chunking Configuration
+chunking:
+  strategy: "hungarian-aware"  # simple, sentence-aware, hungarian-aware
+  chunk_size: 400
+  overlap: 60
+  input_dir: "data/raw"
+  output_dir: "data/processed"
+
+# Search Configuration
+search:
+  top_k_default: 20
+  top_k_all_queries: 50
+  similarity_metric: "cosine"  # cosine, dot_product
+  boost_entity_names: true
+  diverse_search: true
+  max_per_source: null  # auto-calculate if null
+
+# Context Budget Configuration
+context:
+  max_tokens_default: 8000
+  max_tokens_all_queries: 12000
+  encoding: "cl100k_base"
+  order_by: "relevance"  # relevance, chunk_index
+  reduce_redundancy: true
+  similarity_threshold: 0.7
+  similarity_threshold_person: 0.9
+  clean_text: true
+  use_sliding_window: false
+  window_overlap: 200
+
+# LLM Configuration
+llm:
+  # QA Settings
+  qa:
+    provider: "ollama"
+    model: "llama3"
+    temperature: 0.7
+    max_tokens: 500
+    base_url: null  # defaults to http://localhost:11434 for ollama
+  
+  # Refiner Settings
+  refiner:
+    enabled: true 
+    provider: "ollama"
+    model: "llama3"
+    temperature: 0.3
+    enable_merging: true
+    enable_metadata: true
+    max_chunk_tokens: 600
+    max_merges_per_iteration: 5
+  
+  # Entity Extraction Settings
+  entity_extraction:
+    method: "spacy"  # spacy, llm, hybrid
+    model: "hu_core_news_lg"  # Hungarian spaCy model
+    llm_provider: null  # required if method is llm or hybrid
+    llm_model: null
+
+# Paths Configuration
+paths:
+  input_dir: "data/raw"
+  output_dir: "data/processed"
+  vector_store: "data/processed/vector_store.pkl"
+  chunks_file: "data/processed/chunks.jsonl"
+  refined_file: "data/processed/chunks_refined.jsonl"
+  entities_file: "data/processed/chunks_with_entities.jsonl"
+  embedded_file: "data/processed/embedded.jsonl"
